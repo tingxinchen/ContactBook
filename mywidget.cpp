@@ -7,16 +7,15 @@
 QString mFilename = "c:/Users/user/Desktop/EX/contackbook.txt";
 void Write (QString Filename, QString str)
 {
-    QFile mFile (Filename); //宣告QFile函數
-    //寫入檔案判斷
+    QFile mFile (Filename);
     if(!mFile.open(QFile::WriteOnly | QFile:: Text)) {
         qDebug() <<"Could not open file for writing";
         return;
     }
     QTextStream out (&mFile);
-    out<<str; //將內容輸出至txt檔
-    mFile.flush(); //刷新mFile
-    mFile.close(); //關閉mFile
+    out<<str;
+    mFile.flush();
+    mFile.close();
 }
 MyWidget::MyWidget(QWidget *parent)
     : QWidget(parent)
@@ -76,20 +75,27 @@ void MyWidget::on_pushButton_3_clicked()
     QString filename = QFileDialog::getOpenFileName(this, "匯入檔案", ".", "Text Files (*.txt);;CSV Files (*.csv);;All Files (*)");
 
     QFile file(filename);
+    if (filename.isEmpty()) {
+        qDebug() << "取消選擇檔案";
+        return;
+    }
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         qDebug() << "無法開啟檔案";
         return;
     }
+
     QTextStream in(&file);
     QString line;
     int row = 0;
+
     ui->tableWidget->setRowCount(0);
+
     while (!in.atEnd()) {
         line = in.readLine();
         QStringList fields = line.split(",");
         ui->tableWidget->insertRow(row);
-        for (int col = 0; col < fields.size(); ++col) {
-            ui->tableWidget->setItem(row, col, new QTableWidgetItem(fields.at(col)));
+        for (int i = 0; i < fields.size(); ++i) {
+            ui->tableWidget->setItem(row, i, new QTableWidgetItem(fields.at(i)));
         }
         row++;
     }
